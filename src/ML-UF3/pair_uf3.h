@@ -64,13 +64,22 @@ class PairUF3 : public Pair {
   int max_num_coeff_2b = 0;
   int max_num_knots_3b = 0;
   int max_num_coeff_3b = 0;
-  double ***n2b_knot_array, ***n2b_coeff_array;
-  double **n2b_knot_array_size, **n2b_coeff_array_size;
+  double ***n2b_knots_array, ***n2b_coeff_array;
+  int **n2b_knots_array_size, **n2b_coeff_array_size;
 
   int ***map_3b, tot_interaction_count_3b;
   double ***n3b_knots_array, ****n3b_coeff_array;
-  double **n3b_knots_array_size, **n3b_coeff_array_size;
+  int **n3b_knots_array_size, **n3b_coeff_array_size;
+
+  /*void uf3_read_2b_pot_block(int itype, int jtype, std::string iele,
+                             std::string jele,
+                             TextFileReader &txtfilereader);
   
+  void uf3_read_3b_pot_block(int itype, int jtype, int ktype,
+                                      std::string iele, std::string jele,
+                                      std::string kele,
+                                      TextFileReader &txtfilereader);*/
+
   //Accessor function called by pair_uf3_kokkos.cpp
   //Will probably be removed once std::vector are converted to arrays
   std::vector<std::vector<std::vector<double>>>& get_n2b_knot();
