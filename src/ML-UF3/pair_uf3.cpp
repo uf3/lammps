@@ -535,6 +535,7 @@ void PairUF3::uf3_read_unified_pot_file(char *potf_name)
       } //if of #UF3 POT
       line_counter++;
     } // while
+    fclose(fp);
   }
 
 
@@ -586,11 +587,21 @@ void PairUF3::uf3_read_unified_pot_file(char *potf_name)
                  "Possibly no 3B UF3 potential block detected in {} file",
                  potf_name);
   }
-  //go to the first line of the file
-  txtfilereader.rewind();
+  
+  //txtfilereader.rewind();
+
+  FILE *fp = utils::open_potential(potf_name, lmp, nullptr);
+  if (!fp)
+    error->all(FLERR,
+               "Cannot open UF3 potential file {}: {}",
+               potf_name, utils::getsyserror());
+
+  TextFileReader txtfilereader(fp, "UF3:POTFP");
+  txtfilereader.ignore_comments = false;
 
   //Go through the file again and fill knot and coeff arrays
   //while loop to read the data
+  char *line;
   while((line = txtfilereader.next_line(1))){
     Tokenizer line_token(line);
 
