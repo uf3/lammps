@@ -50,6 +50,7 @@ class PairUF3 : public Pair {
   void uf3_read_pot_file(int i, int j, char *potf_name);
   void uf3_read_pot_file(int i, int j, int k, char *potf_name);
   void uf3_read_unified_pot_file(char *potf_name);
+  void communicate();
   int nbody_flag, n2body_pot_files, n3body_pot_files, tot_pot_files;
   int bsplines_created;
   bool pot_3b;

@@ -145,9 +145,7 @@ void PairUF3::settings(int narg, char **arg)
  * ---------------------------------------------------------------------- */
 void PairUF3::coeff(int narg, char **arg)
 {
-
-  const int num_of_elements = atom->ntypes;
-  if (narg != 3+num_of_elements)
+  if (narg != 3+atom->ntypes)
     error->all(FLERR, "Invalid number of arguments uf3 in pair coeffs.");
 
   if (!allocated) allocate();
@@ -156,7 +154,35 @@ void PairUF3::coeff(int narg, char **arg)
 
   if (comm->me == 0)
     uf3_read_unified_pot_file(arg[2]);
+  communicate();
+  //if (narg != 3 && narg != 5) error->all(FLERR, "Invalid number of arguments uf3 in pair coeffs.");
 
+  /*int ilo, ihi, jlo, jhi, klo, khi;
+  if (narg == 3) {
+    utils::bounds(FLERR, arg[0], 1, atom->ntypes, ilo, ihi, error);
+    utils::bounds(FLERR, arg[1], 1, atom->ntypes, jlo, jhi, error);
+    for (int i = ilo; i <= ihi; i++) {
+      for (int j = MAX(jlo, i); j <= jhi; j++) uf3_read_pot_file(i, j, arg[2]);
+    }
+  } else if (narg == 5) {
+    utils::bounds(FLERR, arg[1], 1, atom->ntypes, ilo, ihi, error);
+    utils::bounds(FLERR, arg[2], 1, atom->ntypes, jlo, jhi, error);
+    utils::bounds(FLERR, arg[3], 1, atom->ntypes, klo, khi, error);
+    if (!utils::strmatch(arg[0], "^3b$"))
+      error->all(FLERR, "Pair style uf3 3-body terms require the first argument to be 3b");
+
+    for (int i = ilo; i <= ihi; i++) {
+      for (int j = jlo; j <= jhi; j++) {
+        for (int k = MAX(klo, jlo); k <= khi; k++) uf3_read_pot_file(i, j, k, arg[4]);
+      }
+    }
+  }*/
+}
+
+//Broadcast data read from potential file to all processors
+void PairUF3::communicate()
+{
+  const int num_of_elements = atom->ntypes;
   MPI_Bcast(&cut[0][0], (num_of_elements + 1)*(num_of_elements + 1),
             MPI_DOUBLE, 0, world);
 
@@ -232,29 +258,6 @@ void PairUF3::coeff(int narg, char **arg)
               (num_of_elements + 1)*(num_of_elements + 1)*(num_of_elements + 1)*3,
               MPI_DOUBLE, 0, world);
   }
-
-  //if (narg != 3 && narg != 5) error->all(FLERR, "Invalid number of arguments uf3 in pair coeffs.");
-
-  /*int ilo, ihi, jlo, jhi, klo, khi;
-  if (narg == 3) {
-    utils::bounds(FLERR, arg[0], 1, atom->ntypes, ilo, ihi, error);
-    utils::bounds(FLERR, arg[1], 1, atom->ntypes, jlo, jhi, error);
-    for (int i = ilo; i <= ihi; i++) {
-      for (int j = MAX(jlo, i); j <= jhi; j++) uf3_read_pot_file(i, j, arg[2]);
-    }
-  } else if (narg == 5) {
-    utils::bounds(FLERR, arg[1], 1, atom->ntypes, ilo, ihi, error);
-    utils::bounds(FLERR, arg[2], 1, atom->ntypes, jlo, jhi, error);
-    utils::bounds(FLERR, arg[3], 1, atom->ntypes, klo, khi, error);
-    if (!utils::strmatch(arg[0], "^3b$"))
-      error->all(FLERR, "Pair style uf3 3-body terms require the first argument to be 3b");
-
-    for (int i = ilo; i <= ihi; i++) {
-      for (int j = jlo; j <= jhi; j++) {
-        for (int k = MAX(klo, jlo); k <= khi; k++) uf3_read_pot_file(i, j, k, arg[4]);
-      }
-    }
-  }*/
 }
 
 void PairUF3::allocate()
